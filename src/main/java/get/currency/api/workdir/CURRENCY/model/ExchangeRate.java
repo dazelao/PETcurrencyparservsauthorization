@@ -1,4 +1,4 @@
-package get.currency.api.workdir.CURRENCY.controller.model;
+package get.currency.api.workdir.CURRENCY.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

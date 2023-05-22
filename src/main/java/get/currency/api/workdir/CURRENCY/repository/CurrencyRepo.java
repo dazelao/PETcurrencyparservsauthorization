@@ -1,6 +1,6 @@
 package get.currency.api.workdir.CURRENCY.repository;
 
-import get.currency.api.workdir.CURRENCY.controller.model.CurrencyModel;
+import get.currency.api.workdir.CURRENCY.model.CurrencyModel;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

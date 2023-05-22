@@ -1,6 +1,6 @@
 package get.currency.api.workdir.CURRENCY.controller;
 
-import get.currency.api.workdir.CURRENCY.controller.model.CurrencyModel;
+import get.currency.api.workdir.CURRENCY.model.CurrencyModel;
 import get.currency.api.workdir.CURRENCY.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
