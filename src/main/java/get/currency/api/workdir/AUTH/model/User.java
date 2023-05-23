@@ -1,10 +1,12 @@
 package get.currency.api.workdir.AUTH.model;
 
+import get.currency.api.workdir.NOTEBOOK.model.UserNotesModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Data
 @Entity
@@ -38,4 +40,7 @@ public class User {
         this.role = Role.USER;
         this.status = Status.ACTIVE;
     }
+
+    @OneToMany(mappedBy = "user")
+    private List<UserNotesModel> userNotesModels;
 }
