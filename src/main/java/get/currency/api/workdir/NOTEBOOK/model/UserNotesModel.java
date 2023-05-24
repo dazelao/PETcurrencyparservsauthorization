@@ -30,6 +30,9 @@ public class UserNotesModel {
     @Column(name = "note_status")
     private NoteStatus noteStatus;
 
+    @Column(name = "type")
+    private Availability availability;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     @JsonIgnore
@@ -41,6 +44,11 @@ public class UserNotesModel {
         this.key = key;
         this.noteStatus = NoteStatus.NEW;
         this.user = user;
+        this.availability = Availability.PUBLIC;
 
+    }
+
+    public NoteStatus getStatus() {
+        return noteStatus;
     }
 }

@@ -14,6 +14,8 @@ public enum NoteStatus {
     INPROGRESS,
 
     @JsonPropertyDescription("Postponed")
-    POSTPONED
+    POSTPONED,
+    @JsonPropertyDescription("DELETE")
+    DEL
 
 }

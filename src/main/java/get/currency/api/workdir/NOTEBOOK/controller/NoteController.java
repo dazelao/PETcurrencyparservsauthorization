@@ -2,6 +2,8 @@ package get.currency.api.workdir.NOTEBOOK.controller;
 
 
 import get.currency.api.workdir.AUTH.model.User;
+import get.currency.api.workdir.NOTEBOOK.model.Availability;
+import get.currency.api.workdir.NOTEBOOK.model.NoteStatus;
 import get.currency.api.workdir.NOTEBOOK.model.UserNotesModel;
 import get.currency.api.workdir.NOTEBOOK.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/usernotes")
@@ -44,7 +47,12 @@ public class NoteController {
     public ResponseEntity<List<UserNotesModel>> getUserNotes(@RequestHeader("Authorization") String token) {
         User user = noteService.getUserFromToken(token);
         List<UserNotesModel> notes = noteService.findAllByUserId(user.getId());
-        return ResponseEntity.ok(notes);
+
+        List<UserNotesModel> filteredNotes = notes.stream()
+                .filter(note -> note.getStatus() != NoteStatus.DEL)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(filteredNotes);
     }
 
     @GetMapping("/getKey")
@@ -68,6 +76,27 @@ public class NoteController {
         return ResponseEntity.ok(userNotesModel);
     }
 
+    @PutMapping("/updatetask")
+    public ResponseEntity<UserNotesModel> updateTask(
+            @RequestParam(value = "key", required = false) String key,
+            @RequestParam(value = "id", required = false) Long id,
+            @RequestParam(value = "subject", required = false) String subject,
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "noteStatus", required = false) NoteStatus noteStatus,
+            @RequestParam(value = "availability", required = false) Availability availability,
+            @RequestHeader("Authorization") String token)
+    {
+        User user = noteService.getUserFromToken(token);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
+        UserNotesModel updatedTask = noteService.updateTask(key, id, subject, description, noteStatus, availability);
+        if (updatedTask != null) {
+            return ResponseEntity.ok(updatedTask);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 }

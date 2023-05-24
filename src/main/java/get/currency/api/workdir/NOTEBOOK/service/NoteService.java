@@ -1,6 +1,8 @@
 package get.currency.api.workdir.NOTEBOOK.service;
 
 import get.currency.api.workdir.AUTH.model.User;
+import get.currency.api.workdir.NOTEBOOK.model.Availability;
+import get.currency.api.workdir.NOTEBOOK.model.NoteStatus;
 import get.currency.api.workdir.NOTEBOOK.repository.FindUserRepo;
 import get.currency.api.workdir.AUTH.security.JwtTokenProvider;
 import get.currency.api.workdir.NOTEBOOK.model.UserNotesModel;
@@ -55,5 +57,36 @@ public class NoteService {
 
     public UserNotesModel getTaskByKey (String key){
         return noteRepository.findByKey(key);
+    }
+
+    public UserNotesModel updateTask(String key, Long id, String subject, String description, NoteStatus noteStatus, Availability availability) {
+        UserNotesModel existingTask;
+
+        if (key != null) {
+            existingTask = noteRepository.findByKey(key);
+        } else if (id != null) {
+            existingTask = noteRepository.findById(id).orElse(null);
+        } else {
+            return null;
+        }
+
+        if (existingTask != null) {
+            if (subject != null) {
+                existingTask.setSubject(subject);
+            }
+            if (description != null) {
+                existingTask.setDescription(description);
+            }
+            if (noteStatus != null) {
+                existingTask.setNoteStatus(noteStatus);
+            }
+            if (availability != null) {
+                existingTask.setAvailability(availability);
+            }
+
+            return noteRepository.save(existingTask);
+        }
+
+        return null;
     }
 }
