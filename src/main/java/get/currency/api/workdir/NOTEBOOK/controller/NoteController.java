@@ -26,7 +26,6 @@ public class NoteController {
     public ResponseEntity<UserNotesModel> addNewTask(
             @RequestParam("subject") String subject,
             @RequestParam("description") String description,
-            @RequestParam("key") String key,
             @RequestHeader("Authorization") String token)
     {
         User user = noteService.getUserFromToken(token);
@@ -34,7 +33,9 @@ public class NoteController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        UserNotesModel addNote = new UserNotesModel(subject, description, key, user);
+        String encryptedKey = noteService.keyGenerator(user.getId(), subject);
+
+        UserNotesModel addNote = new UserNotesModel(subject, description, encryptedKey, user);
         noteService.createTask(addNote);
         return ResponseEntity.ok(addNote);
     }
@@ -44,6 +45,27 @@ public class NoteController {
         User user = noteService.getUserFromToken(token);
         List<UserNotesModel> notes = noteService.findAllByUserId(user.getId());
         return ResponseEntity.ok(notes);
+    }
+
+    @GetMapping("/getKey")
+    public ResponseEntity<String> getkey(@RequestParam("id") Long id) {
+        UserNotesModel userNotesModel = noteService.getKeyById(id);
+        if (userNotesModel == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String key = userNotesModel.getKey();
+        return ResponseEntity.ok(key);
+    }
+
+    @GetMapping("/getTaskByKey")
+    public ResponseEntity<UserNotesModel> getTaskByKey(@RequestParam("key") String key) {
+        UserNotesModel userNotesModel = noteService.getTaskByKey(key);
+        if (userNotesModel == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(userNotesModel);
     }
 
 

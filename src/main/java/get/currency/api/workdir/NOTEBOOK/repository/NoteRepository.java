@@ -7,4 +7,7 @@ import java.util.List;
 
 public interface NoteRepository extends JpaRepository<UserNotesModel, Long> {
     List<UserNotesModel> findAllByUserId(Long id);
+    UserNotesModel findKeyById(Long id);
+    UserNotesModel findByKey(String key);
+
 }

@@ -1,4 +1,4 @@
-package get.currency.api.workdir.AUTH.repository;
+package get.currency.api.workdir.NOTEBOOK.repository;
 
 import get.currency.api.workdir.AUTH.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
