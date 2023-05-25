@@ -29,8 +29,7 @@ public class NoteController {
     public ResponseEntity<UserNotesModel> addNewTask(
             @RequestParam("subject") String subject,
             @RequestParam("description") String description,
-            @RequestHeader("Authorization") String token)
-    {
+            @RequestHeader("Authorization") String token) {
         User user = noteService.getUserFromToken(token);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -83,6 +82,8 @@ public class NoteController {
     }
 
 
+    //
+
     @PutMapping("/updatetask")
     public ResponseEntity<UserNotesModel> updateTask(
             @RequestParam(value = "key", required = false) String key,
@@ -91,11 +92,21 @@ public class NoteController {
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(value = "noteStatus", required = false) NoteStatus noteStatus,
             @RequestParam(value = "availability", required = false) Availability availability,
-            @RequestHeader("Authorization") String token)
-    {
+            @RequestHeader("Authorization") String token) {
         User user = noteService.getUserFromToken(token);
+
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        UserNotesModel userNotesModel = noteService.getTaskByKey(key);
+        if (userNotesModel == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // Проверка доступа
+        if (!noteService.canUserUpdateRecord(user, userNotesModel)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new UserNotesModel("Недостаточно прав", "", "", null));
         }
 
         UserNotesModel updatedTask = noteService.updateTask(key, id, subject, description, noteStatus, availability);
@@ -105,6 +116,6 @@ public class NoteController {
             return ResponseEntity.notFound().build();
         }
     }
-
-
 }
+
+

@@ -1,5 +1,6 @@
 package get.currency.api.workdir.NOTEBOOK.service;
 
+import get.currency.api.workdir.AUTH.model.Role;
 import get.currency.api.workdir.AUTH.model.User;
 import get.currency.api.workdir.NOTEBOOK.model.Availability;
 import get.currency.api.workdir.NOTEBOOK.model.NoteStatus;
@@ -55,9 +56,12 @@ public class NoteService {
         return noteRepository.findKeyById(id);
     }
 
+
     public UserNotesModel getTaskByKey (String key){
         return noteRepository.findByKey(key);
     }
+
+
 
     public UserNotesModel updateTask(String key, Long id, String subject, String description, NoteStatus noteStatus, Availability availability) {
         UserNotesModel existingTask;
@@ -90,8 +94,14 @@ public class NoteService {
         return null;
     }
 
+
+    // вот бы вспомнить зачем я это писал и почему от него отказался, но пусть побудет
     public boolean isUserNoteCreator(User currentUser, UserNotesModel note) {
         return currentUser.getId().equals(note.getUser().getId());
+    }
+
+    public boolean canUserUpdateRecord(User currentUser, UserNotesModel note) {
+        return isUserNoteCreator(currentUser, note) || currentUser.getRole() == Role.ADMIN;
     }
 
 }
