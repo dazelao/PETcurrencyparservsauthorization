@@ -33,7 +33,7 @@ public class NoteService {
         noteRepository.save(userNotesModel);
     }
 
-    public List<UserNotesModel> findAllByUserId(Long id){
+    public List<UserNotesModel> getAllByUserId(Long id){
         return noteRepository.findAllByUserId(id);
     }
 
@@ -89,4 +89,9 @@ public class NoteService {
 
         return null;
     }
+
+    public boolean isUserNoteCreator(User currentUser, UserNotesModel note) {
+        return currentUser.getId().equals(note.getUser().getId());
+    }
+
 }

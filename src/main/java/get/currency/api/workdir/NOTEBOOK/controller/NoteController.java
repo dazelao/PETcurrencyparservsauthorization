@@ -46,7 +46,7 @@ public class NoteController {
     @GetMapping("/getauthusernotes")
     public ResponseEntity<List<UserNotesModel>> getUserNotes(@RequestHeader("Authorization") String token) {
         User user = noteService.getUserFromToken(token);
-        List<UserNotesModel> notes = noteService.findAllByUserId(user.getId());
+        List<UserNotesModel> notes = noteService.getAllByUserId(user.getId());
 
         List<UserNotesModel> filteredNotes = notes.stream()
                 .filter(note -> note.getStatus() != NoteStatus.DEL)
@@ -56,7 +56,7 @@ public class NoteController {
     }
 
     @GetMapping("/getKey")
-    public ResponseEntity<String> getkey(@RequestParam("id") Long id) {
+    public ResponseEntity<String> getKey(@RequestParam("id") Long id) {
         UserNotesModel userNotesModel = noteService.getKeyById(id);
         if (userNotesModel == null) {
             return ResponseEntity.notFound().build();
@@ -67,14 +67,21 @@ public class NoteController {
     }
 
     @GetMapping("/getTaskByKey")
-    public ResponseEntity<UserNotesModel> getTaskByKey(@RequestParam("key") String key) {
+    public ResponseEntity<UserNotesModel> getTaskByKey(@RequestParam("key") String key, @RequestHeader("Authorization") String token) {
+        User user = noteService.getUserFromToken(token);
         UserNotesModel userNotesModel = noteService.getTaskByKey(key);
+
         if (userNotesModel == null) {
             return ResponseEntity.notFound().build();
         }
 
+        if (userNotesModel.getAvailability() == Availability.PRIVATE && !user.getId().equals(userNotesModel.getUser().getId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new UserNotesModel("Нет доступа", "", "", null));
+        }
+
         return ResponseEntity.ok(userNotesModel);
     }
+
 
     @PutMapping("/updatetask")
     public ResponseEntity<UserNotesModel> updateTask(
@@ -98,5 +105,6 @@ public class NoteController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
 }

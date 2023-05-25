@@ -31,12 +31,12 @@ public class CurrencyService {
                         });
     }
 
-    public List<CurrencyModel> findAll(){
+    public List<CurrencyModel> getAll(){
         return Optional.ofNullable(currencyRepo.findAll())
                 .orElseGet(ArrayList::new);
     }
 
-    public CurrencyModel findLast(){
+    public CurrencyModel getLast(){
         return Optional.ofNullable(currencyRepo.findFirstByOrderByIdDesc())
                 .orElseThrow(() -> new NoSuchElementException("Не найдена последняя модель валюты"));
     }

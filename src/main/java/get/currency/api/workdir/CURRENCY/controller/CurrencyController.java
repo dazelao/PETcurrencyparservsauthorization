@@ -24,7 +24,7 @@ public class CurrencyController {
     @GetMapping("/gethistory")
     @PreAuthorize("hasAuthority('developers:read')")
     public ResponseEntity<List<CurrencyModel>> findAll() {
-        List<CurrencyModel> currency = currencyService.findAll();
+        List<CurrencyModel> currency = currencyService.getAll();
         return ResponseEntity.ok(currency);
     }
 
@@ -44,7 +44,7 @@ public class CurrencyController {
     @GetMapping("/getlast")
     @PreAuthorize("hasAuthority('developers:write')")
     public CurrencyModel getLast(){
-        return currencyService.findLast();
+        return currencyService.getLast();
     }
 
     @Scheduled(cron = "0 */2 * ? * *")
