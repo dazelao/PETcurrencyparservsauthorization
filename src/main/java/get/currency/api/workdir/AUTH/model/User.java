@@ -1,5 +1,6 @@
 package get.currency.api.workdir.AUTH.model;
 
+import get.currency.api.workdir.NEWS.model.Article;
 import get.currency.api.workdir.NOTEBOOK.model.UserNotesModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,5 +45,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<UserNotesModel> userNotesModels;
 
-
+    @ManyToMany
+    @JoinTable(name = "user_article_status",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "article_id"))
+    private List<Article> articles;
 }
