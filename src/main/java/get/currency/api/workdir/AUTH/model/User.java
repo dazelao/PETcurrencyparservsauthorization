@@ -46,7 +46,7 @@ public class User {
     private List<UserNotesModel> userNotesModels;
 
     @ManyToMany
-    @JoinTable(name = "user_article_status",
+    @JoinTable(name = "user_news_status",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "article_id"))
     private List<Article> articles;

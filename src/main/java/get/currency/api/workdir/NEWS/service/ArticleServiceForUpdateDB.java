@@ -7,6 +7,8 @@ import get.currency.api.workdir.NEWS.repository.ArticleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -25,17 +27,28 @@ public class ArticleServiceForUpdateDB {
     private EntityManager entityManager;
     private final ArticleRepository articleRepository;
 
+
     @Autowired
     public ArticleServiceForUpdateDB(ArticleRepository articleRepository) {
         this.articleRepository = articleRepository;
+
     }
 
 
     public List<Article> fetchAndSaveArticles(String country, String category) {
         String apiUrl = "https://newsapi.org/v2/top-headlines?country=" + country + "&category=" + category + "&apiKey=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
-        NewsApiResponse response = restTemplate.getForObject(apiUrl, NewsApiResponse.class);
+        ResponseEntity<NewsApiResponse> responseEntity = restTemplate.getForEntity(apiUrl, NewsApiResponse.class);
 
+        HttpStatus statusCode = responseEntity.getStatusCode();
+        System.out.println("Статус ответа API: " + statusCode);
+
+        if (statusCode != HttpStatus.OK) {
+            System.out.println("Ошибка при получении новостей: " + statusCode);
+            return null;
+        }
+
+        NewsApiResponse response = responseEntity.getBody();
         List<Article> fetchedArticles = new ArrayList<>();
 
         if (response != null && response.getStatus().equals("ok")) {
@@ -50,13 +63,12 @@ public class ArticleServiceForUpdateDB {
                     article.setCategory(category);
                     article.setCountry(country);
 
-
                     boolean articleExists = articleRepository.existsByHash(hash);
                     if (!articleExists) {
                         articleRepository.save(article);
                     }
                 } catch (DataIntegrityViolationException e) {
-
+                    System.out.println(e);
                 }
             }
         }
@@ -68,8 +80,6 @@ public class ArticleServiceForUpdateDB {
     public void fetchAndSaveAllArticles() {
         String[] countries = {"gb", "ua", "us"};
         String[] categories = {"business", "entertainment", "science", "sports", "technology"};
-//        String[] countries = {"ua"};
-//        String[] categories = {"entertainment"};
         long startTime = System.currentTimeMillis();
         List<Article> articles = new ArrayList<>();
 
@@ -89,13 +99,13 @@ public class ArticleServiceForUpdateDB {
             }
         }
 
-        articleRepository.saveAll(articles);
+        List<Article> savedArticles = articleRepository.saveAll(articles);
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
 
         System.out.println("Общее время выполнения: " + totalTime + " миллисекунд");
+        System.out.println("Количество сохраненных записей: " + savedArticles.size());
     }
-
 
 
 

@@ -2,6 +2,7 @@ package get.currency.api.workdir.NOTEBOOK.service;
 
 import get.currency.api.workdir.AUTH.model.Role;
 import get.currency.api.workdir.AUTH.model.User;
+import get.currency.api.workdir.NEWS.model.UserNewsStatus;
 import get.currency.api.workdir.NOTEBOOK.model.Availability;
 import get.currency.api.workdir.NOTEBOOK.model.NoteStatus;
 import get.currency.api.workdir.NOTEBOOK.repository.FindUserRepo;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class NoteService {
@@ -36,6 +38,11 @@ public class NoteService {
 
     public List<UserNotesModel> getAllByUserId(Long id){
         return noteRepository.findAllByUserId(id);
+    }
+
+
+    public Optional<UserNotesModel> getTaskById(Long id){
+        return noteRepository.findById(id);
     }
 
     public User getUserFromToken(String token) {
@@ -95,7 +102,6 @@ public class NoteService {
     }
 
 
-    // вот бы вспомнить зачем я это писал и почему от него отказался, но пусть побудет
     public boolean isUserNoteCreator(User currentUser, UserNotesModel note) {
         return currentUser.getId().equals(note.getUser().getId());
     }
@@ -103,5 +109,7 @@ public class NoteService {
     public boolean canUserUpdateRecord(User currentUser, UserNotesModel note) {
         return isUserNoteCreator(currentUser, note) || currentUser.getRole() == Role.ADMIN;
     }
+
+
 
 }

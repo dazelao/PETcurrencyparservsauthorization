@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/apiv2")
+@RequestMapping("/api/v2/currency")
 public class CurrencyController {
 
     private final CurrencyService currencyService;

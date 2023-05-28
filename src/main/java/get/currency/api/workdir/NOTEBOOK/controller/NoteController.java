@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/usernotes")
+@RequestMapping("/api/v2/usernotes")
 public class NoteController {
     private final NoteService noteService;
 
@@ -82,8 +82,6 @@ public class NoteController {
     }
 
 
-    //
-
     @PutMapping("/updatetask")
     public ResponseEntity<UserNotesModel> updateTask(
             @RequestParam(value = "key", required = false) String key,
@@ -98,17 +96,20 @@ public class NoteController {
         if (user == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-
-        UserNotesModel userNotesModel = noteService.getTaskByKey(key);
+        UserNotesModel userNotesModel;
+        if (key != null) {
+            userNotesModel = noteService.getTaskByKey(key);
+        } else if (id != null) {
+            userNotesModel = noteService.getTaskById(id).orElse(null);
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
         if (userNotesModel == null) {
             return ResponseEntity.notFound().build();
         }
-
-        // Проверка доступа
         if (!noteService.canUserUpdateRecord(user, userNotesModel)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new UserNotesModel("Недостаточно прав", "", "", null));
         }
-
         UserNotesModel updatedTask = noteService.updateTask(key, id, subject, description, noteStatus, availability);
         if (updatedTask != null) {
             return ResponseEntity.ok(updatedTask);

@@ -1,39 +1,47 @@
 package get.currency.api.workdir.NEWS.service;
 
 import get.currency.api.workdir.AUTH.model.User;
+import get.currency.api.workdir.AUTH.repository.UserRepository;
 import get.currency.api.workdir.AUTH.security.JwtTokenProvider;
 import get.currency.api.workdir.NEWS.model.Article;
 import get.currency.api.workdir.NEWS.model.NewsStatus;
 import get.currency.api.workdir.NEWS.model.UserNewsStatus;
 import get.currency.api.workdir.NEWS.repository.ArticleRepository;
 import get.currency.api.workdir.NEWS.repository.NewsStatusRepository;
-import get.currency.api.workdir.NOTEBOOK.repository.FindUserRepo;
 import get.currency.api.workdir.NOTEBOOK.service.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Page;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 
 @Service
 public class ArticleServiceForUser {
 
     private final ArticleRepository articleRepository;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final FindUserRepo findUserRepo;
     private final NoteService noteService;
     private final NewsStatusRepository newsStatusRepository;
 
+    private final JwtTokenProvider jwtTokenProvider;
+
+    private final UserRepository userRepository;
+
     @Autowired
-    public ArticleServiceForUser(ArticleRepository articleRepository, JwtTokenProvider jwtTokenProvider, FindUserRepo findUserRepo, NoteService noteService, NewsStatusRepository newsStatusRepository) {
+    public ArticleServiceForUser(ArticleRepository articleRepository, NoteService noteService, NewsStatusRepository newsStatusRepository, JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.articleRepository = articleRepository;
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.findUserRepo = findUserRepo;
         this.noteService = noteService;
         this.newsStatusRepository = newsStatusRepository;
+        this.jwtTokenProvider = jwtTokenProvider;
+        this.userRepository = userRepository;
     }
 
     public Optional<Article> getByid(Long id) {
@@ -114,19 +122,37 @@ public class ArticleServiceForUser {
         }
     }
 
-    public void updateUserNewsStatus(String token, Long articleId, NewsStatus status, boolean liked) {
-        User user = noteService.getUserFromToken(token);
-        Optional<Article> article = articleRepository.findById(articleId);
-
-        if (user != null && article.isPresent()) {
-            UserNewsStatus newsStatus = newsStatusRepository.findByUserAndArticle(user, article.get());
-
-            if (newsStatus != null) {
-                newsStatus.setStatus(status);
-                newsStatus.setLiked(liked);
-                newsStatusRepository.save(newsStatus);
-            }
-        }
+    public List<Article> getLatestNewsByCategory(String category) {
+        return articleRepository.findTop10ByCategoryOrderByPublishedAtDesc(category);
     }
+
+    public List<Article> getLatestNewsByCategoryAndCountry(String category, String country) {
+        return articleRepository.findTop10ByCategoryAndCountryOrderByPublishedAtDesc(category, country);
+    }
+
+    public Page<Article> getNewsByCategoryWithOffset(String category, int offset, int count) {
+        Pageable pageable = PageRequest.of(offset, count);
+        return articleRepository.findByCategoryOrderByPublishedAtDesc(category, pageable);
+    }
+
+    public Page<Article> getNewsByCategoryAndCountryWithOffset(String category, int offset, int count, String country) {
+        Pageable pageable = PageRequest.of(offset, count);
+        return articleRepository.findByCategoryAndCountryOrderByPublishedAtDesc(category, country, pageable);
+    }
+
+    public List<Article> getSavedOrLikedArticlesByUserId(Long userId, boolean saved, boolean liked) {
+        List<Article> articles = new ArrayList<>();
+
+        List<UserNewsStatus> userNewsStatusList = newsStatusRepository.findByUser_IdAndStatusAndLiked(userId, NewsStatus.SAVED, liked);
+        for (UserNewsStatus userNewsStatus : userNewsStatusList) {
+            articles.add(userNewsStatus.getArticle());
+        }
+
+        return articles;
+    }
+
+   public List<UserNewsStatus> getById(Long id){
+        return newsStatusRepository.findByUser_Id(id);
+   }
 
 }
