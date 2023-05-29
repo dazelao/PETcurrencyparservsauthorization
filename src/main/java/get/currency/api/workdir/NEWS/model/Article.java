@@ -1,12 +1,9 @@
 package get.currency.api.workdir.NEWS.model;
 
 import javax.persistence.*;
-
-import get.currency.api.workdir.AUTH.model.User;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Data
@@ -41,8 +38,6 @@ public class Article {
     @Column
     private String hash;
 
-//    @ManyToMany(mappedBy = "articles")
-//    private List<User> users;
 
     @Column
     private String category;

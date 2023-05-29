@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/news")
 public class NewsUpdate {
     private ArticleServiceForUpdateDB articleServiceForUpdateDB;
 

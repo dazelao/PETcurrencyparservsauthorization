@@ -4,6 +4,7 @@ import get.currency.api.workdir.NEWS.model.Article;
 import get.currency.api.workdir.NEWS.utils.HashUtils;
 import get.currency.api.workdir.NEWS.model.NewsApiResponse;
 import get.currency.api.workdir.NEWS.repository.ArticleRepository;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Data
 public class ArticleServiceForUpdateDB {
     @Value("${api.key}")
     private String apiKey;
@@ -35,6 +37,8 @@ public class ArticleServiceForUpdateDB {
     }
 
 
+
+    @Transactional
     public List<Article> fetchAndSaveArticles(String country, String category) {
         String apiUrl = "https://newsapi.org/v2/top-headlines?country=" + country + "&category=" + category + "&apiKey=" + apiKey;
         RestTemplate restTemplate = new RestTemplate();
@@ -176,4 +180,3 @@ public class ArticleServiceForUpdateDB {
 
 
 }
-
