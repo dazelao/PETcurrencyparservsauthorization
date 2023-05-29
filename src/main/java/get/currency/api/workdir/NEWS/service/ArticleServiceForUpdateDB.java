@@ -4,6 +4,7 @@ import get.currency.api.workdir.NEWS.model.Article;
 import get.currency.api.workdir.NEWS.utils.HashUtils;
 import get.currency.api.workdir.NEWS.model.NewsApiResponse;
 import get.currency.api.workdir.NEWS.repository.ArticleRepository;
+import get.currency.api.workdir.PINGER.TelegramBot;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,12 +29,14 @@ public class ArticleServiceForUpdateDB {
     @PersistenceContext
     private EntityManager entityManager;
     private final ArticleRepository articleRepository;
+    private final TelegramBot telegramBot;
 
 
     @Autowired
-    public ArticleServiceForUpdateDB(ArticleRepository articleRepository) {
+    public ArticleServiceForUpdateDB(ArticleRepository articleRepository, TelegramBot telegramBot) {
         this.articleRepository = articleRepository;
 
+        this.telegramBot = telegramBot;
     }
 
 
@@ -45,10 +48,10 @@ public class ArticleServiceForUpdateDB {
         ResponseEntity<NewsApiResponse> responseEntity = restTemplate.getForEntity(apiUrl, NewsApiResponse.class);
 
         HttpStatus statusCode = responseEntity.getStatusCode();
-        System.out.println("Статус ответа API: " + statusCode);
+        telegramBot.sendTelegramMessage("FetchNews Статус ответа API: " + statusCode);
 
         if (statusCode != HttpStatus.OK) {
-            System.out.println("Ошибка при получении новостей: " + statusCode);
+            telegramBot.sendTelegramMessage("FetchNews Ошибка при получении новостей: " + statusCode);
             return null;
         }
 
@@ -72,7 +75,7 @@ public class ArticleServiceForUpdateDB {
                         articleRepository.save(article);
                     }
                 } catch (DataIntegrityViolationException e) {
-                    System.out.println(e);
+                    telegramBot.sendTelegramMessage("FetchNews Ошибка при получении данных" + e);
                 }
             }
         }
@@ -82,6 +85,7 @@ public class ArticleServiceForUpdateDB {
 
     @Transactional
     public void fetchAndSaveAllArticles() {
+        telegramBot.sendTelegramMessage("Запущен метод получения данных");
         String[] countries = {"gb", "ua", "us"};
         String[] categories = {"business", "entertainment", "science", "sports", "technology"};
         long startTime = System.currentTimeMillis();
@@ -107,8 +111,8 @@ public class ArticleServiceForUpdateDB {
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
 
-        System.out.println("Общее время выполнения: " + totalTime + " миллисекунд");
-        System.out.println("Количество сохраненных записей: " + savedArticles.size());
+        telegramBot.sendTelegramMessage("Общее время выполнения: " + totalTime + " миллисекунд");
+        telegramBot.sendTelegramMessage("Новости получены");
     }
 
 
@@ -117,6 +121,8 @@ public class ArticleServiceForUpdateDB {
 
     @Transactional
     public void removeDuplicates() {
+
+        telegramBot.sendTelegramMessage("Запуск удаления дубликатов");
         long startTime = System.currentTimeMillis();
 
         List<Object[]> duplicatesWithAuthorNull = entityManager.createQuery(
@@ -175,7 +181,7 @@ public class ArticleServiceForUpdateDB {
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
 
-        System.out.println("Общее время выполнения: " + totalTime + " миллисекунд");
+        telegramBot.sendTelegramMessage("Дубликаты удалены. Общее время выполнения: " + totalTime + " миллисекунд");
     }
 
 

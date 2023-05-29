@@ -1,6 +1,7 @@
 package get.currency.api.workdir.AUTH.controller;
 
 import get.currency.api.workdir.AUTH.service.AuthenticationService;
+import get.currency.api.workdir.PINGER.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,10 +13,12 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/api/v2/auth")
 public class AuthenticationRestControllerV2 {
     private final AuthenticationService authenticationService;
+    private final TelegramBot telegramBot;
 
     @Autowired
-    public AuthenticationRestControllerV2(AuthenticationService authenticationService) {
+    public AuthenticationRestControllerV2(AuthenticationService authenticationService, TelegramBot telegramBot) {
         this.authenticationService = authenticationService;
+        this.telegramBot = telegramBot;
     }
 
     @PostMapping("/registration")
@@ -23,6 +26,7 @@ public class AuthenticationRestControllerV2 {
                                           @RequestParam("password") String password,
                                           @RequestParam("first_name") String firstName,
                                           @RequestParam("last_name") String lastName) {
+        telegramBot.sendTelegramMessage("Зарегистрирован новый пользователь: " + email);
         return authenticationService.registerUser(email, password, firstName, lastName);
     }
 

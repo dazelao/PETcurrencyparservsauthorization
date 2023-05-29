@@ -3,11 +3,14 @@ package get.currency.api.workdir.CURRENCY.service;
 import get.currency.api.workdir.CURRENCY.model.CurrencyModel;
 import get.currency.api.workdir.CURRENCY.model.ExchangeRate;
 import get.currency.api.workdir.CURRENCY.repository.CurrencyRepo;
+import get.currency.api.workdir.PINGER.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,9 +21,11 @@ public class CurrencyService {
 
     private static final String API_URL = "https://api.privatbank.ua/p24api/pubinfo?exchange&coursid=5";
     private final CurrencyRepo currencyRepo;
+    private final TelegramBot telegramBot;
     @Autowired
-    public CurrencyService(CurrencyRepo currencyRepo) {
+    public CurrencyService(CurrencyRepo currencyRepo, TelegramBot telegramBot) {
         this.currencyRepo = currencyRepo;
+        this.telegramBot = telegramBot;
     }
 
     public void saveNewCurrency(CurrencyModel currencyModel){
@@ -63,6 +68,7 @@ public class CurrencyService {
             }
             CurrencyModel currencyModel = new CurrencyModel(usdSale, usdBuy, eurSale, eurBuy);
             currencyRepo.save(currencyModel);
+            telegramBot.sendTelegramMessage("Запись валюты" + LocalDateTime.now());
         }
 
     }

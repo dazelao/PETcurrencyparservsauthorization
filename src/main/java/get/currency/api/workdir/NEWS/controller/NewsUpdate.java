@@ -1,8 +1,10 @@
 package get.currency.api.workdir.NEWS.controller;
 
 import get.currency.api.workdir.NEWS.service.ArticleServiceForUpdateDB;
+import get.currency.api.workdir.PINGER.TelegramBot;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/news")
 public class NewsUpdate {
     private ArticleServiceForUpdateDB articleServiceForUpdateDB;
+    private final TelegramBot telegramBot;
+
+    public NewsUpdate(TelegramBot telegramBot) {
+        this.telegramBot = telegramBot;
+    }
 
     @Autowired
     public void ArticleController(ArticleServiceForUpdateDB articleServiceForUpdateDB) {
@@ -24,25 +31,18 @@ public class NewsUpdate {
 
 
     @GetMapping("/getNews")
-//    @Scheduled(cron = "0 */15 * ? * *")
+    @Scheduled(cron = "0 0 */5 ? * *")
     public void fetchAndSaveArticles() {
+        telegramBot.sendTelegramMessage("Получение новостей, следующий запуск через 5 часов");
         articleServiceForUpdateDB.fetchAndSaveAllArticles();
     }
 
     @DeleteMapping("/delDuplicate")
-//    @Scheduled(fixedDelay = 30000)
     public void removeDuplicates() {
         articleServiceForUpdateDB.removeDuplicates();
     }
 
 
-//    @Scheduled(cron = "0 */10 * ? * *")
-//    @GetMapping("/getNews")
-//    public void fetchAndSaveArticles() {
-//        CompletableFuture.runAsync(() -> {
-//            articleService.fetchAndSaveAllArticles();
-//            articleService.removeDuplicates();
-//        });
-//    }
+
 
 }

@@ -23,6 +23,7 @@ public class ArticleController {
     private final ArticleServiceForUser articleServiceForUser;
     private final NoteService noteService;
 
+
     public ArticleController(ArticleServiceForUser articleServiceForUser,NoteService noteService) {
         this.articleServiceForUser = articleServiceForUser;
         this.noteService = noteService;
